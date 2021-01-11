@@ -108,7 +108,7 @@ export class Engine {
     this.pointers[0] = { x: 0, y: 0, type: 'mouse' };
     this.pointers[0].x = e.pageX - this.canvas.offsetLeft;
     this.pointers[0].y = e.pageY - this.canvas.offsetTop;
-    if (this.pointers[0] && this.pointerDown && e.button == 2) {
+    if (this.pointers[0] && this.pointerDown && e.button == 0) {
       this.mapOffsetX += this.pointers[0].x - oldPointers[0].x;
       this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
     }
