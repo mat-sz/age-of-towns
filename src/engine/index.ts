@@ -10,6 +10,8 @@ export interface Pointer {
   y: number;
 }
 
+interface EngineEvents {}
+
 export class Engine {
   private tileWidth = 132;
   private tileHeight = 65;
@@ -32,6 +34,8 @@ export class Engine {
 
   private map: string[][][] = [];
   private mapSize = 512;
+
+  private events: EngineEvents = {};
 
   constructor(private canvas: HTMLCanvasElement) {
     canvas.width = document.body.clientWidth;
@@ -225,5 +229,19 @@ export class Engine {
     }
 
     requestAnimationFrame(this.render);
+  }
+
+  on(eventType: keyof EngineEvents, listener: Function): void {
+    this.events[eventType].add(listener as any);
+  }
+
+  off(eventType: keyof EngineEvents, listener: Function): void {
+    this.events[eventType].delete(listener as any);
+  }
+
+  private emit(eventType: keyof EngineEvents, ...args: any[]) {
+    for (const listener of this.events[eventType]) {
+      (listener as Function).apply(this, args);
+    }
   }
 }
