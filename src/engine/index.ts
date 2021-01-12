@@ -10,7 +10,11 @@ export interface Pointer {
   y: number;
 }
 
-interface EngineEvents {}
+type EngineTileClickedEventListener = (tileX: number, tileY: number) => void;
+
+interface EngineEventMap {
+  tileClicked: EngineTileClickedEventListener;
+}
 
 export class Engine {
   private tileWidth = 132;
@@ -35,7 +39,9 @@ export class Engine {
   private map: string[][][] = [];
   private mapSize = 512;
 
-  private events: EngineEvents = {};
+  private events: Record<keyof EngineEventMap, Set<any>> = {
+    tileClicked: new Set<EngineTileClickedEventListener>(),
+  };
 
   constructor(private canvas: HTMLCanvasElement) {
     canvas.width = document.body.clientWidth;
@@ -231,15 +237,21 @@ export class Engine {
     requestAnimationFrame(this.render);
   }
 
-  on(eventType: keyof EngineEvents, listener: Function): void {
+  on<K extends keyof EngineEventMap>(
+    eventType: K,
+    listener: EngineEventMap[K]
+  ): void {
     this.events[eventType].add(listener as any);
   }
 
-  off(eventType: keyof EngineEvents, listener: Function): void {
+  off<K extends keyof EngineEventMap>(
+    eventType: K,
+    listener: EngineEventMap[K]
+  ): void {
     this.events[eventType].delete(listener as any);
   }
 
-  private emit(eventType: keyof EngineEvents, ...args: any[]) {
+  private emit<K extends keyof EngineEventMap>(eventType: K, ...args: any[]) {
     for (const listener of this.events[eventType]) {
       (listener as Function).apply(this, args);
     }
