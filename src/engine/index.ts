@@ -130,6 +130,8 @@ export class Engine {
       );
       this.selectedTileX = tileCoords.tx;
       this.selectedTileY = tileCoords.ty;
+
+      this.emit('tileClicked', this.selectedTileX, this.selectedTileY);
     }
   }
 
