@@ -185,27 +185,27 @@ export class Engine {
 
   private touchXY(e: TouchEvent) {
     e.preventDefault();
-    this.pointers = [];
-    for (let i = 0; i < e.targetTouches.length; i++) {
-      this.pointers[i] = { x: 0, y: 0, type: 'touch' };
-      this.pointers[i].x = e.targetTouches[i].pageX - this.canvas.offsetLeft;
-      this.pointers[i].y = e.targetTouches[i].pageY - this.canvas.offsetTop;
-    }
-
-    if (this.pointers[0]) {
-      let tileCoords = this.XYToTileCoords(
-        this.pointers[0].x - this.mapOffsetX,
-        this.pointers[0].y - this.mapOffsetY
-      );
-      this.hoveredTileX = tileCoords.tx;
-      this.hoveredTileY = tileCoords.ty;
-    }
+    let oldPointers = [...this.pointers];
+    this.pointers = [...e.targetTouches].map(touch => ({
+      x: touch.pageX - this.canvas.offsetLeft,
+      y: touch.pageY - this.canvas.offsetTop,
+      type: 'touch',
+    }));
 
     if (!this.initialPointers && this.pointerDown) {
       this.initialPointers = [...this.pointers];
     }
 
+    if (this.pointers[0] && oldPointers[0] && this.pointerDown) {
+      this.mapOffsetX += this.pointers[0].x - oldPointers[0].x;
+      this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
+    }
+
     if (!this.pointerDown) {
+      if (this.pointers[0]) {
+        this.detectTileClick();
+      }
+
       this.pointers = [];
       this.initialPointers = undefined;
     }
