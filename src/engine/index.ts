@@ -90,7 +90,21 @@ export class Engine {
     this.imageAssets[name].src = path;
   }
 
-  private detectTileClick() {
+  private handlePointers(pointers: Pointer[]) {
+    let oldPointers = [...this.pointers];
+    this.pointers = pointers;
+
+    if (!this.initialPointers && this.pointerDown) {
+      this.initialPointers = [...this.pointers];
+    }
+
+    if (this.pointers[0] && oldPointers[0] && this.pointerDown) {
+      this.mapOffsetX += this.pointers[0].x - oldPointers[0].x;
+      this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
+    }
+  }
+
+  private handleTileClick() {
     if (!this.initialPointers) {
       return;
     }
@@ -141,28 +155,13 @@ export class Engine {
 
   private mouseXY(e: MouseEvent) {
     e.preventDefault();
-    let oldPointers = [...this.pointers];
-    this.pointers = [
+    this.handlePointers([
       {
         x: e.pageX - this.canvas.offsetLeft,
         y: e.pageY - this.canvas.offsetTop,
         type: 'mouse',
       },
-    ];
-
-    if (!this.initialPointers && this.pointerDown) {
-      this.initialPointers = [...this.pointers];
-    }
-
-    if (
-      this.pointers[0] &&
-      oldPointers[0] &&
-      this.pointerDown &&
-      e.button == 0
-    ) {
-      this.mapOffsetX += this.pointers[0].x - oldPointers[0].x;
-      this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
-    }
+    ]);
 
     if (this.pointers[0]) {
       let tileCoords = this.XYToTileCoords(
@@ -175,7 +174,7 @@ export class Engine {
 
     if (!this.pointerDown) {
       if (this.pointers[0] && e.button == 0) {
-        this.detectTileClick();
+        this.handleTileClick();
       }
 
       this.pointers = [];
@@ -185,25 +184,17 @@ export class Engine {
 
   private touchXY(e: TouchEvent) {
     e.preventDefault();
-    let oldPointers = [...this.pointers];
-    this.pointers = [...e.targetTouches].map(touch => ({
-      x: touch.pageX - this.canvas.offsetLeft,
-      y: touch.pageY - this.canvas.offsetTop,
-      type: 'touch',
-    }));
-
-    if (!this.initialPointers && this.pointerDown) {
-      this.initialPointers = [...this.pointers];
-    }
-
-    if (this.pointers[0] && oldPointers[0] && this.pointerDown) {
-      this.mapOffsetX += this.pointers[0].x - oldPointers[0].x;
-      this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
-    }
+    this.handlePointers(
+      [...e.targetTouches].map(touch => ({
+        x: touch.pageX - this.canvas.offsetLeft,
+        y: touch.pageY - this.canvas.offsetTop,
+        type: 'touch',
+      }))
+    );
 
     if (!this.pointerDown) {
       if (this.pointers[0]) {
-        this.detectTileClick();
+        this.handleTileClick();
       }
 
       this.pointers = [];
