@@ -12,3 +12,5 @@ const engine = new Engine(canvas);
 engine.registerImageAsset('grass', grass);
 engine.registerImageAsset('road', road);
 engine.registerImageAsset('selection', selection);
+
+engine.on('tileClicked', (x, y) => alert(x + ' ' + y));
