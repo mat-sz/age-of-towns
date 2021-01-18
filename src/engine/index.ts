@@ -26,6 +26,8 @@ export class Engine {
 
   private selectedTileX = -1;
   private selectedTileY = -1;
+  private hoveredTileX = -1;
+  private hoveredTileY = -1;
 
   private imageAssets: Record<string, HTMLImageElement> = {};
 
@@ -162,6 +164,15 @@ export class Engine {
       this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
     }
 
+    if (this.pointers[0]) {
+      let tileCoords = this.XYToTileCoords(
+        this.pointers[0].x - this.mapOffsetX,
+        this.pointers[0].y - this.mapOffsetY
+      );
+      this.hoveredTileX = tileCoords.tx;
+      this.hoveredTileY = tileCoords.ty;
+    }
+
     if (!this.pointerDown) {
       if (this.pointers[0] && e.button == 0) {
         this.detectTileClick();
@@ -179,6 +190,15 @@ export class Engine {
       this.pointers[i] = { x: 0, y: 0, type: 'touch' };
       this.pointers[i].x = e.targetTouches[i].pageX - this.canvas.offsetLeft;
       this.pointers[i].y = e.targetTouches[i].pageY - this.canvas.offsetTop;
+    }
+
+    if (this.pointers[0]) {
+      let tileCoords = this.XYToTileCoords(
+        this.pointers[0].x - this.mapOffsetX,
+        this.pointers[0].y - this.mapOffsetY
+      );
+      this.hoveredTileX = tileCoords.tx;
+      this.hoveredTileY = tileCoords.ty;
     }
 
     if (!this.initialPointers && this.pointerDown) {
@@ -238,17 +258,6 @@ export class Engine {
     }
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    let currentTileX = -1;
-    let currentTileY = -1;
-
-    if (this.pointers[0]) {
-      let tileCoords = this.XYToTileCoords(
-        this.pointers[0].x - this.mapOffsetX,
-        this.pointers[0].y - this.mapOffsetY
-      );
-      currentTileX = tileCoords.tx;
-      currentTileY = tileCoords.ty;
-    }
 
     for (let x = 0; x < this.map.length; x++) {
       for (let y = 0; y < this.map[x].length; y++) {
@@ -262,7 +271,7 @@ export class Engine {
               coords.y
             );
 
-            if (i == 0 && x == currentTileX && y == currentTileY) {
+            if (i == 0 && x == this.hoveredTileX && y == this.hoveredTileY) {
               if (!this.pointerDown) {
                 this.drawTile(
                   this.imageAssets['selection'],
