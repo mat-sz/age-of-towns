@@ -23,6 +23,7 @@ export class Engine {
 
   private mapOffsetY = 0;
   private mapOffsetX = 0;
+
   private selectedTileX = -1;
   private selectedTileY = -1;
 
@@ -33,6 +34,7 @@ export class Engine {
 
   private windowResized = false;
 
+  private initialPointers: Pointer[] = undefined;
   private pointers: Pointer[] = [];
   private pointerDown = false;
 
@@ -86,6 +88,30 @@ export class Engine {
     this.imageAssets[name].src = path;
   }
 
+  private detectTileClick() {
+    if (!this.initialPointers) {
+      return;
+    }
+
+    const distance = Math.sqrt(
+      Math.pow(this.pointers[0].x - this.initialPointers[0].x, 2) +
+        Math.pow(this.pointers[0].y - this.initialPointers[0].y, 2)
+    );
+
+    if (distance > 10) {
+      return;
+    }
+
+    let tileCoords = this.XYToTileCoords(
+      this.pointers[0].x - this.mapOffsetX,
+      this.pointers[0].y - this.mapOffsetY
+    );
+    this.selectedTileX = tileCoords.tx;
+    this.selectedTileY = tileCoords.ty;
+
+    this.emit('tileClicked', this.selectedTileX, this.selectedTileY);
+  }
+
   private mouseUp(e: MouseEvent) {
     e.preventDefault();
     this.pointerDown = false;
@@ -114,24 +140,35 @@ export class Engine {
   private mouseXY(e: MouseEvent) {
     e.preventDefault();
     let oldPointers = [...this.pointers];
-    this.pointers = [];
-    this.pointers[0] = { x: 0, y: 0, type: 'mouse' };
-    this.pointers[0].x = e.pageX - this.canvas.offsetLeft;
-    this.pointers[0].y = e.pageY - this.canvas.offsetTop;
-    if (this.pointers[0] && this.pointerDown && e.button == 0) {
+    this.pointers = [
+      {
+        x: e.pageX - this.canvas.offsetLeft,
+        y: e.pageY - this.canvas.offsetTop,
+        type: 'mouse',
+      },
+    ];
+
+    if (!this.initialPointers && this.pointerDown) {
+      this.initialPointers = [...this.pointers];
+    }
+
+    if (
+      this.pointers[0] &&
+      oldPointers[0] &&
+      this.pointerDown &&
+      e.button == 0
+    ) {
       this.mapOffsetX += this.pointers[0].x - oldPointers[0].x;
       this.mapOffsetY += this.pointers[0].y - oldPointers[0].y;
     }
 
-    if (this.pointers[0] && this.pointerDown && e.button == 0) {
-      let tileCoords = this.XYToTileCoords(
-        this.pointers[0].x - this.mapOffsetX,
-        this.pointers[0].y - this.mapOffsetY
-      );
-      this.selectedTileX = tileCoords.tx;
-      this.selectedTileY = tileCoords.ty;
+    if (!this.pointerDown) {
+      if (this.pointers[0] && e.button == 0) {
+        this.detectTileClick();
+      }
 
-      this.emit('tileClicked', this.selectedTileX, this.selectedTileY);
+      this.pointers = [];
+      this.initialPointers = undefined;
     }
   }
 
@@ -142,6 +179,15 @@ export class Engine {
       this.pointers[i] = { x: 0, y: 0, type: 'touch' };
       this.pointers[i].x = e.targetTouches[i].pageX - this.canvas.offsetLeft;
       this.pointers[i].y = e.targetTouches[i].pageY - this.canvas.offsetTop;
+    }
+
+    if (!this.initialPointers && this.pointerDown) {
+      this.initialPointers = [...this.pointers];
+    }
+
+    if (!this.pointerDown) {
+      this.pointers = [];
+      this.initialPointers = undefined;
     }
   }
 
