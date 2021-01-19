@@ -151,6 +151,7 @@ export class Engine {
     if (e.targetTouches.length == 0) {
       this.pointerDown = false;
     }
+    this.touchXY(e);
   }
 
   private mouseXY(e: MouseEvent) {
