@@ -193,6 +193,15 @@ export class Engine {
       }))
     );
 
+    if (this.pointers[0]) {
+      let tileCoords = this.XYToTileCoords(
+        this.pointers[0].x - this.mapOffsetX,
+        this.pointers[0].y - this.mapOffsetY
+      );
+      this.hoveredTileX = tileCoords.tx;
+      this.hoveredTileY = tileCoords.ty;
+    }
+
     if (!this.pointerDown) {
       if (this.pointers[0]) {
         this.handleTileClick();
