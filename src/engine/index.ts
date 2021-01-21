@@ -148,7 +148,7 @@ export class Engine {
 
   private touchUp(e: TouchEvent) {
     e.preventDefault();
-    if (e.targetTouches.length == 0) {
+    if (e.targetTouches.length === 0) {
       this.pointerDown = false;
     }
     this.touchXY(e);
@@ -174,7 +174,7 @@ export class Engine {
     }
 
     if (!this.pointerDown) {
-      if (this.pointers[0] && e.button == 0) {
+      if (this.pointers[0] && e.button === 0) {
         this.handleTileClick();
       }
 
@@ -272,7 +272,7 @@ export class Engine {
               coords.y
             );
 
-            if (i == 0 && x == this.hoveredTileX && y == this.hoveredTileY) {
+            if (i === 0 && x === this.hoveredTileX && y === this.hoveredTileY) {
               if (!this.pointerDown) {
                 this.drawTile(
                   this.imageAssets['selection'],
