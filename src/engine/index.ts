@@ -40,8 +40,7 @@ export class Engine {
   private pointers: Pointer[] = [];
   private pointerDown = false;
 
-  private map: string[][][] = [];
-  private mapSize = 512;
+  public map: string[][][] = [];
 
   private events: Record<keyof EngineEventMap, Set<any>> = {
     tileClicked: new Set<EngineTileClickedEventListener>(),
@@ -57,13 +56,6 @@ export class Engine {
     });
 
     canvas.addEventListener('contextmenu', e => e.preventDefault(), false);
-
-    for (let x = 0; x < this.mapSize; x++) {
-      this.map[x] = [];
-      for (let y = 0; y < this.mapSize; y++) {
-        this.map[x][y] = ['grass'];
-      }
-    }
 
     this.mouseDown = this.mouseDown.bind(this);
     this.mouseXY = this.mouseXY.bind(this);
