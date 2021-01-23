@@ -46,14 +46,16 @@ export class Engine {
     tileClicked: new Set<EngineTileClickedEventListener>(),
   };
 
-  constructor(private canvas: HTMLCanvasElement) {
+  constructor(private canvas: HTMLCanvasElement, private autoResize = true) {
     canvas.width = document.body.clientWidth;
     canvas.height = document.body.clientHeight;
     this.ctx = canvas.getContext('2d');
 
-    window.addEventListener('resize', () => {
-      this.windowResized = true;
-    });
+    if (autoResize) {
+      window.addEventListener('resize', () => {
+        this.windowResized = true;
+      });
+    }
 
     canvas.addEventListener('contextmenu', e => e.preventDefault(), false);
 
@@ -244,7 +246,7 @@ export class Engine {
   }
 
   private render() {
-    if (this.windowResized) {
+    if (this.windowResized && this.autoResize) {
       this.canvas.width = document.body.clientWidth;
       this.canvas.height = document.body.clientHeight;
       this.windowResized = false;
