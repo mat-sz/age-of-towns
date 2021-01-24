@@ -148,16 +148,7 @@ export class Engine {
     this.touchXY(e);
   }
 
-  private mouseXY(e: MouseEvent) {
-    e.preventDefault();
-    this.handlePointers([
-      {
-        x: e.pageX - this.canvas.offsetLeft,
-        y: e.pageY - this.canvas.offsetTop,
-        type: 'mouse',
-      },
-    ]);
-
+  private XY(clickCondition = true) {
     if (this.pointers[0]) {
       let tileCoords = this.XYToTileCoords(
         this.pointers[0].x - this.mapOffsetX,
@@ -168,13 +159,26 @@ export class Engine {
     }
 
     if (!this.pointerDown) {
-      if (this.pointers[0] && e.button === 0) {
+      if (this.pointers[0] && clickCondition) {
         this.handleTileClick();
       }
 
       this.pointers = [];
       this.initialPointers = undefined;
     }
+  }
+
+  private mouseXY(e: MouseEvent) {
+    e.preventDefault();
+    this.handlePointers([
+      {
+        x: e.pageX - this.canvas.offsetLeft,
+        y: e.pageY - this.canvas.offsetTop,
+        type: 'mouse',
+      },
+    ]);
+
+    this.XY(e.button === 0);
   }
 
   private touchXY(e: TouchEvent) {
@@ -187,23 +191,7 @@ export class Engine {
       }))
     );
 
-    if (this.pointers[0]) {
-      let tileCoords = this.XYToTileCoords(
-        this.pointers[0].x - this.mapOffsetX,
-        this.pointers[0].y - this.mapOffsetY
-      );
-      this.hoveredTileX = tileCoords.tx;
-      this.hoveredTileY = tileCoords.ty;
-    }
-
-    if (!this.pointerDown) {
-      if (this.pointers[0]) {
-        this.handleTileClick();
-      }
-
-      this.pointers = [];
-      this.initialPointers = undefined;
-    }
+    this.XY();
   }
 
   private drawTile(image: HTMLImageElement, x: number, y: number) {
