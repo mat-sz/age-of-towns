@@ -24,10 +24,10 @@ export class Engine {
   private mapOffsetY = 0;
   private mapOffsetX = 0;
 
-  private selectedTileX = -1;
-  private selectedTileY = -1;
-  private hoveredTileX = -1;
-  private hoveredTileY = -1;
+  private selectedTileX: number = undefined;
+  private selectedTileY: number = undefined;
+  private hoveredTileX: number = undefined;
+  private hoveredTileY: number = undefined;
 
   private imageAssets: Record<string, HTMLImageElement> = {};
 
